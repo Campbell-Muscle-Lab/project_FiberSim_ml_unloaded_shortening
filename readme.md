@@ -4,7 +4,9 @@
 
 This repo uses [FiberSim](https://campbell-muscle-lab.github.io/FiberSim/) to generate simulations of unloaded shortening with model parameters selected from a user-defined range.
 
-This repo contains a "large" dataset with 10,000 trials, each of which was run with low tolerances. This took about 6 days to run on Ken's PC with 128 threads. It's unlikely that you want to re-create this dataset, although the intructions below show how you could. If you simply want to access the results of the analysis, you can skip to the [Analysis results](##analysis_results)
+This repo contains a "large" dataset with 10,000 trials, each of which was run with low tolerances. This took about 6 days to run on Ken's PC with 128 threads. It's unlikely that you want to re-create this dataset, although the intructions below show how you could.
+
+If you simply want to access the results of the simulations and the subsequent analyses, you can download a zip file that contains the `sim_data` and `analysis` folders described below [from this link](https://luky.sharepoint.com/:u:/s/CampbellLab/EcX1vCWXI1hMi_MojM4ydVAB5rLANowP7mNDyYmrcoaH5Q?e=ShoLfm) (warning, 8 GB, Dixit, Brooke, and Stuart should have access via their Yale email addresses).
 
 A demo showing how to run a much smaller calculation is available at [Latin hypercube sampling](https://campbell-muscle-lab.github.io/FiberSim/pages/demos/sampling/latin_hypercube/latin_hypercube.html)
 
@@ -17,7 +19,7 @@ You can run new FiberSim calculations to
 
 Running the simulations requires a Windows computer. It will also take multiple days to recreate the full dataset of 10,000 trials.
 
-Once all the simulations have finished, the analysis routines are launched automatically. This is much faster - a few seonds per trial.
+Once all the simulations have finished, the analysis routines are launched automatically. This is much faster - about ~1 second per trial.
 
 ### Generate your own simulations
 
@@ -58,6 +60,8 @@ Once all the simulations have finished, the analysis routines are launched autom
 + On Ken's PC with 128 threads, running the full set of simulations took ~6 days.
 
 ### Analyzing simulations
+
+**Note** - if you downloaded the zip file containing the results and analyses of the simulations (see [Overview](#overview)), extract the zip folder into `<Project_repo>/test`. That should create `<Project_repo>/test/sim_data` and `<Project_repo>/test/analysis` folders and preserve the paths described below.
 
 + FiberPy analyzes the simulations by calling `<Project_repo>/test/Python_code/analyze_simulations.py`. This is launched automatically after the last trial has finished.
 
