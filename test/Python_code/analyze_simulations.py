@@ -8,6 +8,7 @@ Created on Mon Oct  2 18:41:41 2023
 import os
 os.environ["OMP_NUM_THREADS"] = '1'
 import json
+import sys
 import copy
 import re
 import shutil
@@ -26,16 +27,9 @@ from natsort import natsorted
 
 from pathlib import Path
 
-top_data_folder = '../sim_data'
-sim_file_string = 'sim_output/1/sim_prot_1_r1.txt'
-
-analysis_folder = '../analysis'
-
-def pair_plot():
+def pair_plot(excel_data_file_string, analysis_folder):
     
-    data_file_string = '../generated/parameter_values.xlsx'
-    
-    d = pd.read_excel(data_file_string)
+    d = pd.read_excel(excel_data_file_string)
     
     sns.set_theme(style = 'ticks')
     sns_plot = sns.pairplot(d)
@@ -46,7 +40,7 @@ def pair_plot():
     print('Saving pair_plot_figure to: %s' % ofs)
     fig.savefig(ofs, bbox_inches='tight')
 
-def analyze_simulations():
+def analyze_simulations(top_data_folder, sim_file_string, analysis_folder):
     """ Runs through simulations, pulling off summary statistics
         for each one, returns results in a pandas dataframe """
        
@@ -56,6 +50,9 @@ def analyze_simulations():
             
         dfs = os.path.join(os.path.abspath(str(d)),
                        sim_file_string)
+        
+        if not os.path.isfile(dfs):
+            continue
         
         sample_results = analyze_simulation(dfs, i)
         
@@ -81,14 +78,13 @@ def analyze_simulation(data_file_string,
     
     # Make a figure
     # Set up a figure
-    no_of_rows = 5
+    no_of_rows = 3
     no_of_cols = 1
         
     Ca_row = 1
     dCadt_row = 2
     hsl_row = 3
     dhsldt_row = 4
-    d2Cadt2_row = 5
     
     fig = plt.figure(constrained_layout = False)
     spec = gridspec.GridSpec(nrows = no_of_rows,
@@ -108,10 +104,10 @@ def analyze_simulation(data_file_string,
     d['dCadt'] = np.gradient(d['Ca'], d['time'])
     d['dCadt'] = d['dCadt'].rolling(rolling_n).sum(). \
         fillna(method='bfill').fillna(method='ffill')
-    d['d2Cadt2'] = np.gradient(d['dCadt'], d['time'])
     
     # Get some values
     res = dict()
+    res['sim_number'] = sim_index + 1
     res['Ca_max'] = d['Ca'].max()
     res['Ca_max_time_s'] = d['time'].iloc[d['Ca'].argmax()]
     res['dCadt_max'] = d['dCadt'].max()
@@ -244,10 +240,7 @@ def analyze_simulation(data_file_string,
         y_lab = ('hs_length_up_%.0f' % (100 * t))
         x_lab = '%s_time_s' % y_lab
         ax[hsl_row-1].plot(res[x_lab], res[y_lab], 'rs', fillstyle='none')        
-
-    # Finally plot dhsldt
-    ax[d2Cadt2_row - 1].plot(d['time'], d['d2Cadt2'], '-')
-    
+   
     # Create an image file string
     output_image_file_string = os.path.join(analysis_folder,
                                        'images',
@@ -286,11 +279,8 @@ def last_point_before(t, y, t_min, t_max, y_thresh, direction):
     
     return vi
 
-def summary_figure():
+def summary_figure(top_data_folder, sim_file_string, analysis_folder):
     """ Superposes simulations """
-    
-    top_data_folder = '../sim_data'
-    sim_file_string = 'sim_output/1/sim_prot_1_r1.txt'
     
     # Set up a figure
     no_of_rows = 2
@@ -318,6 +308,9 @@ def summary_figure():
         dfs = os.path.join(os.path.abspath(str(d)),
                            sim_file_string)
         
+        if not os.path.isfile(dfs):
+            continue
+        
         d = pd.read_csv(dfs, sep='\t', na_values=['-nan(ind'])
         
         d['Ca2+'] = np.power(10, -d['hs_1_pCa'])
@@ -337,6 +330,17 @@ def summary_figure():
     
 if __name__ == "__main__":
 
+    top_data_folder = '../sim_data'
+    sim_file_string = 'sim_output/1/sim_prot_1_r1.txt'
+
+    excel_data_file_string = '../generated/parameter_values.xlsx'
+    analysis_folder = '../analysis'
+
+    base_folder = str(Path(str(sys.argv[0])).parent.absolute().resolve())
+    analysis_folder = os.path.join(base_folder, analysis_folder)
+    excel_data_file_string = os.path.join(base_folder, excel_data_file_string)
+    top_data_folder = os.path.join(base_folder, top_data_folder)
+
     # Clean the analysis folder
     try:
         print('Trying to remove: %s' % analysis_folder)
@@ -344,8 +348,12 @@ if __name__ == "__main__":
     except OSError as e:
         print('Error: %s : %s' % (analysis_folder, e.strerror))
 
-    pair_plot()
+    if not os.path.isdir(analysis_folder):
+        print('Making %s')
+        os.makedirs(analysis_folder)
+
+    pair_plot(excel_data_file_string, analysis_folder)
     
-    summary_figure()
+    summary_figure(top_data_folder, sim_file_string, analysis_folder)
     
-    analyze_simulations()
+    analyze_simulations(top_data_folder, sim_file_string, analysis_folder)

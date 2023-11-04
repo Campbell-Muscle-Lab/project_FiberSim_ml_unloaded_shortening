@@ -2,7 +2,11 @@
 
 ## Overview
 
-This repo shows how to use [FiberSim](https://campbell-muscle-lab.github.io/FiberSim/) to generate simulations of unloaded shortening with model parameters selected from a user-defined range.
+This repo uses [FiberSim](https://campbell-muscle-lab.github.io/FiberSim/) to generate simulations of unloaded shortening with model parameters selected from a user-defined range.
+
+This repo contains a "large" dataset with 10,000 trials, each of which was run with low tolerances. This took about 6 days to run on Ken's PC with 128 threads. It's unlikely that you want to re-create this dataset, although the intructions below show how you could. If you simply want to access the results of the analysis, you can skip to the [Analysis results](##analysis_results)
+
+A demo showing how to run a much smaller calculation is available at [Latin hypercube sampling](https://campbell-muscle-lab.github.io/FiberSim/pages/demos/sampling/latin_hypercube/latin_hypercube.html)
 
 ## Steps
 
@@ -11,9 +15,11 @@ You can run new FiberSim calculations to
 + generate your own simulations
 + analyse the data files included in this repo.
 
-Running simulations requires a Windows computer and will take a while, particularly on a machine with a moderate number of threads. If you are interested in machine learning, it's probably best to skip to the analysis section for now.
+Running the simulations requires a Windows computer. It will also take multiple days to recreate the full dataset of 10,000 trials.
 
-### Running your own simulations
+Once all the simulations have finished, the analysis routines are launched automatically. This is much faster - a few seonds per trial.
+
+### Generate your own simulations
 
 + You will need a Windows computer.
 
@@ -27,7 +33,7 @@ Running simulations requires a Windows computer and will take a while, particula
 
 + Now clone this project repo. We will refer to this as `<Project_repo>`
 
-+ Find `sampling_setup.json` in `<Project_repo>/test/base`
++ Find `setup.json` in `<Project_repo>/test/base`
 
 + Open the json file in a text editor and change the path to the exe file in line 5 to match your hard drive.
 
@@ -45,21 +51,15 @@ Running simulations requires a Windows computer and will take a while, particula
 
 + Change dirctory to `<FiberSim_repo>/code/FiberPy/FiberPy`
 
-+ Run `python FiberPy.py sample <full path to your sampling_setup.json file>`
++ Run `python FiberPy.py sample <full path to your setup.json file>`
 
 + You should see a lot of stuff happening in your command prompt and eventually files appearing in `<Project_repo>/sim_data`
 
-+ On Ken's PC with 128 threads, this demo will take ~30 minutes.
++ On Ken's PC with 128 threads, running the full set of simulations took ~6 days.
 
 ### Analyzing simulations
 
-+ Open an Anaconda prompt
-
-+ Activate the FiberSim environment
-
-+ Change directory to `<Project_repo>/test/Python_code`
-
-+ Run `python analyze_simulations.py`
++ FiberPy analyzes the simulations by calling `<Project_repo>/test/Python_code/analyze_simulations.py`. This is launched automatically after the last trial has finished.
 
 + You should see some action in the command window
 
@@ -67,26 +67,36 @@ Running simulations requires a Windows computer and will take a while, particula
 
 #### Pair_plot
 
-`pair_plot.png` is a scatterplot matrix generated using seaborn for the parameter values that were tested in the simulations. The parameter values are stored in an Excel file in `<Project_repo>/test/sim_data/generated/parameter_values.xlsx`
+`pair_plot.png` is a scatterplot matrix generated using seaborn for the parameter values that were tested in the simulations.
 
-The plot seems consistent with the Latin Hypercube sampling approach.
+The plot seems consistent with the Latin Hypercube sampling approach. Note that the parameters were selected from a log-scale but that the scatterplot matrix uses linear scaling. This explains the exponential distribution of the histograms.
 
 <img src='images/pair_plot.png'>
 
+The parameter values used to for each of the 10,000 trials are stored in an Excel file in `<Project_repo>/test/sim_data/generated/parameter_values.xlsx`
+
+<img src="images/excel_parameter_values.png">
+
+
 #### Summary
 
-`summary.png` shows Ca transients and unloaded shortening profiles predicted by FiberSim for 100 combinations of parameter values.
+`summary.png` shows Ca transients and unloaded shortening profiles predicted by FiberSim for 10,000 combinations of parameter values.
 
-<img src='images/summary.png'>
+<img src="images/summary.png">
+
 
 #### Trace analysis
 
-`<Project_repo>/test/analysis/images` contains 100 figures, each of which shows the analysis of a single simulation. Here is an example.
+`<Project_repo>/test/analysis/images` contains 10,000 figures, each of which shows the analysis of a single simulation. Here is an example (`sim_1197.png`)showing a "good" twitch.
 
-<img src='images/sim_53.png'>
+<img src='images/sim_1197.png'>
+
+Note that many of the simulations show "non-twitch" like behavior. This example (`sim_1196.png`) shows a cell that shortens down to its minimum length.
+
+<img src='images/sim_1196.png'>
 
 #### Analysis metrics
 
-`<Project_repo>/test/analysis/analysis.xlsx` shows 35 metrics for each of the 100 simulations.
+`<Project_repo>/test/analysis/analysis.xlsx` shows >30 metrics for each of the 10,000 simulations.
 
-<img src="images/excel_screenshot.png">
+<img src="images/excel_analysis_values.png">

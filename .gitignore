@@ -1,3 +1,4 @@
+**/test/analysis/**/*.png
 **/test/generated/**/*.*
 **/test/generated_char/**/*.*
 **/test/sim_data/**/*.*
